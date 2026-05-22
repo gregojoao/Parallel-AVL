@@ -1,6 +1,10 @@
 
 \.vs/
 
+**/bin/
+
+**/obj/
+
 Tree-Parallel/obj/
 
 Tree-Parallel/bin/
