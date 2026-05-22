@@ -7,8 +7,6 @@ namespace Tree_Parallel.Models
 {
     public class Arvore_Operacoes
     {
-        private string arvore;
-
         public Leaf raiz;
 
         public string logTela;

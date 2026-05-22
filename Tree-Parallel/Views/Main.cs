@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Tree_Parallel.Application;
 using Tree_Parallel.Models.TreeAVL;
 
 namespace Tree_Parallel.Views
@@ -45,11 +46,11 @@ namespace Tree_Parallel.Views
 
         AVL tree;
 
-        Int64 TamanhoInteiro = 100000;
+        int TamanhoInteiro = 100000;
 
-        Int64[] vetor;
+        private readonly TreeDataFileService treeDataFileService = new TreeDataFileService();
 
-        string appPath = Path.GetDirectoryName(Application.ExecutablePath);
+        string appPath;
 
         public Main()
         {
@@ -66,8 +67,7 @@ namespace Tree_Parallel.Views
 
             txtLog.Text = log;
 
-            //appPath = appPath + "\\" + TamanhoInteiro.ToString() + ".txt";
-            appPath = appPath + "\\" + "100000 - Random.txt";
+            appPath = Path.Combine(AppContext.BaseDirectory, "100000 - Random.txt");
         }
 
         private void MaKeFile_Click(object sender, EventArgs e)
@@ -78,21 +78,11 @@ namespace Tree_Parallel.Views
 
         private void MaleFileOrder()
         {
-            StreamWriter Writer = new StreamWriter(appPath);
-
-            Int64 informacao;
-
             Stopwatch stopWatch = new Stopwatch(); // É o responsável pela marcação do tempo
 
             stopWatch.Start();
 
-            for (Int64 i = 1; i <= TamanhoInteiro; i++)
-            {
-                informacao = i;
-                Writer.WriteLine(informacao.ToString());
-            }
-
-            Writer.Close();
+            treeDataFileService.CreateOrderedFile(appPath, TamanhoInteiro);
 
             stopWatch.Stop();
 
@@ -108,37 +98,11 @@ namespace Tree_Parallel.Views
 
         private void MakeFileRandom()
         {
-            StreamWriter Writer = new StreamWriter(appPath);
-
-            Int64 informacao;
-
-            Random random = new Random();
-
             Stopwatch stopWatch = new Stopwatch();
 
             stopWatch.Start();
 
-            Int64[] vetorAux = new Int64[TamanhoInteiro];
-
-            for (Int64 i = 0; i < TamanhoInteiro; i++)
-            {
-                vetorAux = vetor;
-
-                informacao = 0;
-
-                informacao = random.Next(0, 1000000);
-                informacao = informacao * random.Next(0, 150);
-
-                vetor[i] = informacao;
-
-            }
-
-            foreach (Int64 value in vetor)
-            {
-                Writer.WriteLine(value.ToString());
-            }
-
-            Writer.Close();
+            treeDataFileService.CreateRandomFile(appPath, TamanhoInteiro);
 
             stopWatch.Stop();
 
@@ -169,8 +133,7 @@ namespace Tree_Parallel.Views
             }
             else if (e.KeyCode == Keys.F2)
             {
-                lblRoot.Text = "Raíz: " + tree.Root.Value.ToString();
-                lblHeight.Text = "Altura: " + tree.Root.Height.ToString();
+                AtualizaLabelsArvore();
             }
             else if (e.KeyCode == Keys.F3)
             {
@@ -193,7 +156,8 @@ namespace Tree_Parallel.Views
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                if (buscaElemento = await tree.DoSearchInTree6(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                buscaElemento = await tree.DoSearchInTree6(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     string log = txtLog.Text + Environment.NewLine + "(" + (DateTime.Now.TimeOfDay.ToString()).Substring(0, 8) + ") " + "- Busca por elemento: " + (txtInfo.Text).Replace(" ", "");
                     txtLog.Text = log;
@@ -220,7 +184,8 @@ namespace Tree_Parallel.Views
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                if (buscaElemento = await tree.DoSearchInTree2(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                buscaElemento = await tree.DoSearchInTree2(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     string log = txtLog.Text + Environment.NewLine + "(" + (DateTime.Now.TimeOfDay.ToString()).Substring(0, 8) + ") " + "- Busca por elemento: " + (txtInfo.Text).Replace(" ", "");
                     txtLog.Text = log;
@@ -276,8 +241,7 @@ namespace Tree_Parallel.Views
 
                     ImprimeSimetrica();
 
-                    lblRoot.Text = "Raíz: " + tree.Root.Value.ToString();
-                    lblHeight.Text = "Altura: " + tree.Root.Height.ToString();
+                    AtualizaLabelsArvore();
                 }
 
                 txtInfo.Text = "";
@@ -308,7 +272,8 @@ namespace Tree_Parallel.Views
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                if (buscaElemento = await tree.DoSearchInTree(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                buscaElemento = await tree.DoSearchInTree(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     log = log
                         + Environment.NewLine
@@ -323,7 +288,9 @@ namespace Tree_Parallel.Views
 
                     stopwatch.Stop();
                 }
-                if (buscaElemento = await tree.DoSearchInTree2(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                stopwatch.Restart();
+                buscaElemento = await tree.DoSearchInTree2(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     log = log
                         + Environment.NewLine
@@ -336,7 +303,9 @@ namespace Tree_Parallel.Views
 
                     stopwatch.Stop();
                 }
-                if (buscaElemento = await tree.DoSearchInTree3(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                stopwatch.Restart();
+                buscaElemento = await tree.DoSearchInTree3(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     log = log
                         + Environment.NewLine
@@ -349,7 +318,9 @@ namespace Tree_Parallel.Views
 
                     stopwatch.Stop();
                 }
-                if (buscaElemento = await tree.DoSearchInTree4(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                stopwatch.Restart();
+                buscaElemento = await tree.DoSearchInTree4(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     log = log
                         + Environment.NewLine
@@ -364,7 +335,9 @@ namespace Tree_Parallel.Views
 
                     stopwatch.Stop();
                 }
-                if (buscaElemento = await tree.DoSearchInTree5(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                stopwatch.Restart();
+                buscaElemento = await tree.DoSearchInTree5(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     log = log
                         + Environment.NewLine
@@ -379,7 +352,9 @@ namespace Tree_Parallel.Views
 
                     stopwatch.Stop();
                 }
-                if (buscaElemento = await tree.DoSearchInTree6(tree.Root, Convert.ToInt64(txtInfo.Text)))
+                stopwatch.Restart();
+                buscaElemento = await tree.DoSearchInTree6(tree.Root, Convert.ToInt64(txtInfo.Text));
+                if (buscaElemento)
                 {
                     log = log
                         + Environment.NewLine
@@ -411,31 +386,33 @@ namespace Tree_Parallel.Views
 
         private async void btnLoadTree_Click(object sender, EventArgs e)
         {
-            LoadTreeAsync();
+            await LoadTreeAsync();
         }
 
-        private async void LoadTreeAsync()
+        private async System.Threading.Tasks.Task LoadTreeAsync()
         {
-            string[] lines = File.ReadAllLines(appPath);
+            if (!File.Exists(appPath))
+            {
+                txtLog.Text = txtLog.Text + Environment.NewLine + "Arquivo não encontrado: " + appPath;
+                return;
+            }
+
             Int64 informacao;
 
             int i = 0;
             string texto = txtLog.Text;
             
-            foreach (string line in lines) // Pega todos os valores do txt e insere na árvore AVL
+            foreach (long value in treeDataFileService.ReadValues(appPath)) // Pega todos os valores do txt e insere na árvore AVL
             {
-                if (line != "")
-                {
-                    i++;
-                    informacao = Convert.ToInt64(line);
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
+                i++;
+                informacao = value;
 
-                    string texto2 = await tree.InsertIntoTree(informacao, txtLog.Text);
-                    
-                    lblRoot.Text = "Raíz: " + tree.Root.Value.ToString();
-                    lblHeight.Text = "Altura: " + tree.Root.Height.ToString();
-                }                
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                string texto2 = await tree.InsertIntoTree(informacao, txtLog.Text);
+                
+                AtualizaLabelsArvore();
             }
             
             ImprimeSimetrica();
@@ -447,6 +424,15 @@ namespace Tree_Parallel.Views
             tree.logConsole = "";
             tree.PrintOutTree(tree.Root, txtConsole.Text);
             txtConsole.Text = "Imprindo: " + Environment.NewLine + tree.logConsole;
+        }
+
+        private void AtualizaLabelsArvore()
+        {
+            if (tree.Root == null)
+                return;
+
+            lblRoot.Text = "Raíz: " + tree.Root.Value.ToString();
+            lblHeight.Text = "Altura: " + tree.Root.Height.ToString();
         }
     }
 }

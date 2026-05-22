@@ -6,11 +6,11 @@ namespace Tree_Parallel.Models.TreeAVL
     {
         public Node root;
 
-        public string logTela;
+        public string logTela = "";
 
-        public string logConsole;
+        public string logConsole = "";
 
-        public int pulos;
+        public int pulos = 0;
 
         public void Initialize()
         {
@@ -154,7 +154,7 @@ namespace Tree_Parallel.Models.TreeAVL
         }
 
 
-        void balancear_tree(tree tree_ptr)
+        void balancear_tree(Tree tree_ptr)
         {
             Node nova_raiz = null;
 
@@ -166,7 +166,7 @@ namespace Tree_Parallel.Models.TreeAVL
             }
         }
 
-        public void inserir(tree tree_ptr, Int64 valor)
+        public void inserir(Tree tree_ptr, Int64 valor)
         {
             Node novo_node_ptr = null;
             Node next_ptr = null;

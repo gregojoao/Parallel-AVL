@@ -1,6 +1,6 @@
 ﻿namespace Tree_Parallel.Models.TreeAVL
 {
-    class tree
+    class Tree
     {
         public Node root;
     }
