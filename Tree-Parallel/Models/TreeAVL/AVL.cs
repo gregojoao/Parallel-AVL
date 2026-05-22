@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -11,8 +12,6 @@ namespace Tree_Parallel.Models.TreeAVL
         public Leaf Root;
 
         public Leaf[] Vetor;
-
-        private Leaf RaizTemporaria;
 
         public string logTela;
 
@@ -27,202 +26,188 @@ namespace Tree_Parallel.Models.TreeAVL
 
         public async Task<bool> DoSearchInTree(Leaf root, Int64 value)
         {
+            if (root == null)
+                return false;
+
+            if (value == root.Value)
+                return true;
+
             if (value < root.Value)
             {
-                await DoMultiThreadin(root, value, 0);
+                return await DoMultiThreadin(root, value, 0);
             }
             else if (value > root.Value)
             {
-                await DoMultiThreadin(root, value, 1);
+                return await DoMultiThreadin(root, value, 1);
             }
 
-            return true;
+            return false;
         }
 
         public async Task<bool> DoSearchInTree2(Leaf root, Int64 value)
         {
+            if (root == null)
+                return false;
+
+            if (value == root.Value)
+                return true;
+
             if (value < root.Value)
             {
-                await DoMultiThreadin2(root, value, 0);
+                return await DoMultiThreadin2(root, value, 0);
             }
             else if (value > root.Value)
             {
-                await DoMultiThreadin2(root, value, 1);
+                return await DoMultiThreadin2(root, value, 1);
             }
 
-            return true;
+            return false;
         }
 
         public async Task<bool> DoSearchInTree3(Leaf root, Int64 value)
         {
+            if (root == null)
+                return false;
+
+            if (value == root.Value)
+                return true;
+
             if (value < root.Value)
             {
-                await DoMultiThreadin3(root, value, 0);
+                return await DoMultiThreadin3(root, value, 0);
             }
             else if (value > root.Value)
             {
-                await DoMultiThreadin3(root, value, 1);
+                return await DoMultiThreadin3(root, value, 1);
             }
 
-            return true;
+            return false;
         }
 
         public async Task<bool> DoSearchInTree4(Leaf root, Int64 value)
         {
+            if (root == null)
+                return false;
+
+            if (value == root.Value)
+                return true;
+
             if (value < root.Value)
             {
-                await DoMultiThreadin4(root, value, 0);
+                return await DoMultiThreadin4(root, value, 0);
             }
             else if (value > root.Value)
             {
-                await DoMultiThreadin4(root, value, 1);
+                return await DoMultiThreadin4(root, value, 1);
             }
 
-            return true;
+            return false;
         }
 
         public async Task<bool> DoSearchInTree5(Leaf root, Int64 value)
         {
+            if (root == null)
+                return false;
+
+            if (value == root.Value)
+                return true;
+
             if (value < root.Value)
             {
-                await DoMultiThreadin5(root, value, 0);
+                return await DoMultiThreadin5(root, value, 0);
             }
             else if (value > root.Value)
             {
-                await DoMultiThreadin5(root, value, 1);
+                return await DoMultiThreadin5(root, value, 1);
             }
 
-            return true;
+            return false;
         }
 
         public async Task<bool> DoSearchInTree6(Leaf root, Int64 value)
         {
+            if (root == null)
+                return false;
+
+            if (value == root.Value)
+                return true;
+
             if (value < root.Value)
             {
-                await DoMultiThreadin6(root, value, 0);
+                return await DoMultiThreadin6(root, value, 0);
             }
             else if (value > root.Value)
             {
-                await DoMultiThreadin6(root, value, 1);
+                return await DoMultiThreadin6(root, value, 1);
             }
 
-            return true;
+            return false;
         }
 
         private async Task<Boolean> DoMultiThreadin(Leaf raiz, Int64 informacao, int direcao)
         {
-            int numThread = 2;
+            var tasks = new List<Task<bool>>
+            {
+                Task.Run(() => Search(raiz, informacao, 0, 1))
+            };
 
-            Task threadPrincipal = new Task(() => Search(raiz, informacao, 0, 1));
-
-            threadPrincipal.Start();
-
-            Leaf raizTemporaria = raiz;
-
-            raizTemporaria = FindWay(raizTemporaria, informacao, direcao);
-
-            Task threadAuxiliar = new Task(() =>Search(raizTemporaria, informacao, 0, numThread));
+            Leaf raizTemporaria = FindWay(raiz, informacao, direcao);
 
             if (raizTemporaria != null)
-                threadAuxiliar.Start();
+                tasks.Add(Task.Run(() => Search(raizTemporaria, informacao, 0, 2)));
 
-            await Task.WhenAll(threadPrincipal);
-            await Task.WhenAll(threadAuxiliar);
+            bool[] resultados = await Task.WhenAll(tasks);
 
-            return true;
+            return ContemResultado(resultados);
         }
 
         private async Task<Boolean> DoMultiThreadin2(Leaf root, Int64 value, int diretion)
         {
-            Task threadPrincipal = new Task(() => Search(root, value, 0, 1));
-
-            threadPrincipal.Start();
-
-            await Task.WhenAll(threadPrincipal);
-
-            return true;
+            return await Task.Run(() => Search(root, value, 0, 1));
         }
 
         private async Task<Boolean> DoMultiThreadin3(Leaf root, Int64 value, int diretion)
         {
-            int numThread = 2;
+            Leaf raizTemporaria = FindWay(root, value, diretion);
 
-            Leaf raizTemporaria = root;
+            if (raizTemporaria == null)
+                return false;
 
-            raizTemporaria = FindWay(raizTemporaria, value, diretion);
-
-            Task threadAuxiliar = new Task(() => Search(raizTemporaria, value, 0, numThread));
-
-            if (raizTemporaria != null)
-                threadAuxiliar.Start();
-
-            await Task.WhenAll(threadAuxiliar);
-
-            return true;
+            return await Task.Run(() => Search(raizTemporaria, value, 0, 2));
         }
 
         private async Task<Boolean> DoMultiThreadin4(Leaf root, Int64 value, int diretion)
         {
-            int numThread = 2;
+            Leaf raizTemporaria = FindWayOtimized(root, value, diretion);
 
-            Leaf raizTemporaria = root;
+            if (raizTemporaria == null)
+                return false;
 
-            raizTemporaria = FindWayOtimized(raizTemporaria, value, diretion);
-
-            Task threadAuxiliar = new Task(() => Search(raizTemporaria, value, 0, numThread));
-
-            if (raizTemporaria != null)
-                threadAuxiliar.Start();
-
-            await Task.WhenAll(threadAuxiliar);
-
-            return true;
+            return await Task.Run(() => Search(raizTemporaria, value, 0, 2));
         }
 
         private async Task<Boolean> DoMultiThreadin5(Leaf root, Int64 value, int diretion)
         {
-            int numThread = 2;
-
-            Task task1 = new Task(() =>
+            var tasks = new List<Task<bool>>
             {
-                Search(root, value, 0, 1);
-            });
+                Task.Run(() => Search(root, value, 0, 1))
+            };
 
-            task1.Start();
+            AddSearchTask(tasks, Vetor, 4, value, 2);
+            AddSearchTask(tasks, Vetor, 5, value, 3);
+            AddSearchTask(tasks, Vetor, 6, value, 4);
 
-            Leaf raizTemporaria = Vetor[4];
+            bool[] resultados = await Task.WhenAll(tasks);
 
-            Task task2 = new Task(() =>
-            {
-                Search(raizTemporaria, value, 0, 2);
-            });
-
-            task2.Start();
-
-            raizTemporaria = Vetor[5];
-            Task task3 = new Task(() =>
-            {
-                Search(raizTemporaria, value, 0, 3);
-            });
-
-            task3.Start();
-
-            raizTemporaria = Vetor[6];
-            Task task4 = new Task(() =>
-            {
-                Search(raizTemporaria, value, 0, 4);
-            });
-
-            task4.Start();
-            
-            return true;
+            return ContemResultado(resultados);
         }
 
         private async Task<Boolean> DoMultiThreadin6(Leaf root, Int64 value, int diretion)
         {
-            int numThread = 2;
-
             Leaf raizTemporaria = root;
+
+            if (Vetor == null || Vetor.Length < 7 || Vetor[4] == null || Vetor[5] == null || Vetor[6] == null)
+                return await Task.Run(() => Search(root, value, 0, 2));
 
             if (value < Vetor[4].Value)
                 raizTemporaria = root;
@@ -236,17 +221,10 @@ namespace Tree_Parallel.Models.TreeAVL
             else if (value > Vetor[6].Value)
                  raizTemporaria = Vetor[6];
 
-            Task threadAuxiliar = new Task(() =>
-            {
-                Search(raizTemporaria, value, 0, numThread);
-            });
+            if (raizTemporaria == null)
+                return false;
 
-            if (raizTemporaria != null)
-            threadAuxiliar.Start();
-
-            await Task.WhenAll(threadAuxiliar);
-
-            return true;
+            return await Task.Run(() => Search(raizTemporaria, value, 0, 2));
         }
 
         public Leaf FindWay(Leaf root, Int64 value, int diretion)
@@ -481,7 +459,10 @@ namespace Tree_Parallel.Models.TreeAVL
 
         public Boolean Search(Leaf leaf, Int64 value, int leap, int thread)
         {
-            if (leaf != null && leaf.Value == value)
+            if (leaf == null)
+                return false;
+
+            if (leaf.Value == value)
             {
                 leap += 1;
                 Thread = thread;
@@ -501,6 +482,26 @@ namespace Tree_Parallel.Models.TreeAVL
 
                 else return false;
             }
+        }
+
+        private void AddSearchTask(List<Task<bool>> tasks, Leaf[] vetor, int indice, Int64 value, int thread)
+        {
+            if (vetor == null || indice >= vetor.Length || vetor[indice] == null)
+                return;
+
+            Leaf raiz = vetor[indice];
+            tasks.Add(Task.Run(() => Search(raiz, value, 0, thread)));
+        }
+
+        private static bool ContemResultado(bool[] resultados)
+        {
+            foreach (bool resultado in resultados)
+            {
+                if (resultado)
+                    return true;
+            }
+
+            return false;
         }
         
         private Leaf AddToLeaf(Int64 value)
