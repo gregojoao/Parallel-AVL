@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using Tree_Parallel.Application;
 using Tree_Parallel.Models.TreeAVL;
 
 namespace Tree_Parallel.Views
@@ -47,7 +48,7 @@ namespace Tree_Parallel.Views
 
         int TamanhoInteiro = 100000;
 
-        long[] vetor;
+        private readonly TreeDataFileService treeDataFileService = new TreeDataFileService();
 
         string appPath;
 
@@ -77,19 +78,11 @@ namespace Tree_Parallel.Views
 
         private void MaleFileOrder()
         {
-            using StreamWriter Writer = new StreamWriter(appPath);
-
-            Int64 informacao;
-
             Stopwatch stopWatch = new Stopwatch(); // É o responsável pela marcação do tempo
 
             stopWatch.Start();
 
-            for (Int64 i = 1; i <= TamanhoInteiro; i++)
-            {
-                informacao = i;
-                Writer.WriteLine(informacao.ToString());
-            }
+            treeDataFileService.CreateOrderedFile(appPath, TamanhoInteiro);
 
             stopWatch.Stop();
 
@@ -105,33 +98,11 @@ namespace Tree_Parallel.Views
 
         private void MakeFileRandom()
         {
-            using StreamWriter Writer = new StreamWriter(appPath);
-
-            Int64 informacao;
-
-            Random random = new Random();
-
             Stopwatch stopWatch = new Stopwatch();
 
             stopWatch.Start();
 
-            vetor = new long[TamanhoInteiro];
-
-            for (int i = 0; i < TamanhoInteiro; i++)
-            {
-                informacao = 0;
-
-                informacao = random.Next(0, 1000000);
-                informacao = informacao * random.Next(0, 150);
-
-                vetor[i] = informacao;
-
-            }
-
-            foreach (Int64 value in vetor)
-            {
-                Writer.WriteLine(value.ToString());
-            }
+            treeDataFileService.CreateRandomFile(appPath, TamanhoInteiro);
 
             stopWatch.Stop();
 
@@ -426,27 +397,22 @@ namespace Tree_Parallel.Views
                 return;
             }
 
-            string[] lines = File.ReadAllLines(appPath);
             Int64 informacao;
 
             int i = 0;
             string texto = txtLog.Text;
             
-            foreach (string line in lines) // Pega todos os valores do txt e insere na árvore AVL
+            foreach (long value in treeDataFileService.ReadValues(appPath)) // Pega todos os valores do txt e insere na árvore AVL
             {
-                if (line != "")
-                {
-                    i++;
-                    if (!Int64.TryParse(line, out informacao))
-                        continue;
+                i++;
+                informacao = value;
 
-                    var stopwatch = new Stopwatch();
-                    stopwatch.Start();
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
 
-                    string texto2 = await tree.InsertIntoTree(informacao, txtLog.Text);
-                    
-                    AtualizaLabelsArvore();
-                }                
+                string texto2 = await tree.InsertIntoTree(informacao, txtLog.Text);
+                
+                AtualizaLabelsArvore();
             }
             
             ImprimeSimetrica();
